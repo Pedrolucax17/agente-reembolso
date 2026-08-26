@@ -1,23 +1,25 @@
 create extension if not exists vector;
 
-create table if not exists public.kb_chunks(
-    id bigserial primary key,
-    doc_path text not null,
-    chunk_ix int not null,
-    content text not null,
-    embedding vector(1536) not null,
-    fts tsvector generated always as (to_tsvector('portuguese', coalesce(content, ''))) stored,
-    meta jsonb not null default '{}'::jsonb,
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now(),
-    unique(doc_path, chunk_ix)
-)
+create table if not exists public.kb_chunks (
+  id bigserial primary key,
+  doc_path text not null,
+  chunk_ix int not null,
+  content text not null,
+  embedding vector(1536) not null,
+  fts tsvector generated always as (to_tsvector('portuguese', coalesce(content, ''))) stored,
+  meta jsonb not null default '{}'::jsonb,
+  client_id uuid null,
+  empresa text null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (doc_path, chunk_ix)
+);
 
 create or replace function public.kb_touch_updated_at()
 returns trigger language plpgsql as $$
 begin
-    new.updated_at := now();
-    return new;
+  new.updated_at := now();
+  return new;
 end;
 $$;
 
