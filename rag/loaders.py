@@ -14,5 +14,12 @@ def list_md_files(base_dir: str | Path) -> List[Path]:
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
-print(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))
+def split_fixed(text: str, chunk_size: int = 800, chunk_overlap=200) -> List[str]:
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+        length_function=len,
+    )
+    return splitter.split_text(text)
 
+print(split_fixed(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))[1])
