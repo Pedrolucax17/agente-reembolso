@@ -22,4 +22,12 @@ def split_fixed(text: str, chunk_size: int = 800, chunk_overlap=200) -> List[str
     )
     return splitter.split_text(text)
 
-print(split_fixed(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))[1])
+def split_markdown(text: str, *, chunk_size: int = 800, chunk_overlap=200 ) -> List[str]:
+    splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=[("#", "h1"), ("##", "h2"), ("###", "h3")]
+    )
+    docs = splitter.split_text(text)
+    return [d.page_content for d in docs]
+
+print(len(split_markdown(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))))
+print(len(split_fixed(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))))
