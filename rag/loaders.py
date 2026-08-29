@@ -29,5 +29,17 @@ def split_markdown(text: str, *, chunk_size: int = 800, chunk_overlap=200 ) -> L
     docs = splitter.split_text(text)
     return [d.page_content for d in docs]
 
-print(len(split_markdown(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))))
-print(len(split_fixed(read_text(Path("rag/docs/anexo_iv_exclusoes.md")))))
+def split_text(text: str, strategy: str = "fixed", *, embedder=None, chunk_size: int=800, chunk_overlap: int=200) -> Tuple[List[str], str]:
+    """Divide texto em chunks conforme a estratégia
+    Retorna (chunks, strategy_resolvida)
+    """
+    s = (strategy or "").lower()
+    if not s:
+        raise RuntimeError("Estratégia de chunking não informada (fixed/markdown)")
+    if s == "fixed":
+        return split_fixed(text, chunk_size=chunk_size, chunk_overlap=chunk_overlap), "fixed"
+    if s == "markdown":
+        return split_markdown(text, chunk_size=chunk_size, chunk_overlap=chunk_overlap), "markdown"
+
+    raise RuntimeError(f"Estratégia de chunking inválida: {strategy}")
+
