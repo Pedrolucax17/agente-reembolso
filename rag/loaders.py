@@ -43,3 +43,21 @@ def split_text(text: str, strategy: str = "fixed", *, embedder=None, chunk_size:
 
     raise RuntimeError(f"Estratégia de chunking inválida: {strategy}")
 
+def load_and_split_dir(base_dir: str | Path, strategy: str = "fixed", *, embedder=None, chunk_size:int=800, chunk_overlap:int=200) -> List[Dict[str, Any]]:
+    """Carrega todos .md do diretório e retorna lista de chunks com metadados.
+
+    Saída: [{doc_path, chunk_ix, content, meta}]
+    meta inclui: {chunking: fixed|markdown}
+    """
+    items: List[Dict[str, Any]] = []
+    for path in list_md_files(base_dir):
+        text = read_text(path)
+        chunks, resolved = split_text(text, strategy, embedder=embedder, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        for i, c in enumerate(chunks):
+            items.append({
+                "doc_path": str(path.as_posix()),
+                "chunk_ix": i,
+                "content": c,
+                "meta": {"chunking": resolved}
+            })
+    return items
