@@ -5,6 +5,7 @@ from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     MarkdownHeaderTextSplitter,
 )
+from langchain_experimental.text_splitter import SemanticChunker
 
 def list_md_files(base_dir: str | Path) -> List[Path]:
     """Lista arquivos .md recursivamente a partir de base_dir"""
@@ -29,6 +30,16 @@ def split_markdown(text: str, *, chunk_size: int = 800, chunk_overlap=200 ) -> L
     docs = splitter.split_text(text)
     return [d.page_content for d in docs]
 
+def split_semantic(text: str, embedder=None) -> List[str]:
+    """Semantic chunking orientado por embeddings (sem fallback).
+    -Requer um embedder compatível e suporte à classe SemanticChunker.
+    -Se indisponível, lança erro explícito.
+    """
+    if embedder is None:
+        raise RuntimeError("Semantic chunking requer 'embedder' válido")
+    splitter = SemanticChunker(embedder, breakpoint_threshold_type="interquartile")
+    return splitter.split_text(text)
+
 def split_text(text: str, strategy: str = "fixed", *, embedder=None, chunk_size: int=800, chunk_overlap: int=200) -> Tuple[List[str], str]:
     """Divide texto em chunks conforme a estratégia
     Retorna (chunks, strategy_resolvida)
@@ -40,6 +51,8 @@ def split_text(text: str, strategy: str = "fixed", *, embedder=None, chunk_size:
         return split_fixed(text, chunk_size=chunk_size, chunk_overlap=chunk_overlap), "fixed"
     if s == "markdown":
         return split_markdown(text, chunk_size=chunk_size, chunk_overlap=chunk_overlap), "markdown"
+    if s == "semantic":
+        return split_semantic(text, embedder=embedder), "semantic"
 
     raise RuntimeError(f"Estratégia de chunking inválida: {strategy}")
 
