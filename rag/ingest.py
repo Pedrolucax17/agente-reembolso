@@ -49,7 +49,7 @@ def upsert_chunks(rows: List[Dict[str, Any]], client_id: Optional[str] = None, e
                 count +=1
     return count
 
-def ingest_dir(base_dir: str = "sql", *, strategy: str = "fixed", client_id: Optional[str] = None, empresa: Optional[str] = None, chunk_size: int = 800, chunk_overlap=200) -> int:
+def ingest_dir(base_dir: str = "sql", *, strategy: str = "semantic", client_id: Optional[str] = None, empresa: Optional[str] = None, chunk_size: int = 800, chunk_overlap=200) -> int:
     """Pipeline: carrega .md, divide, embeda e upserta. Retorna total processado."""
     embedder = OpenAIEmbeddings(model="text-embedding-3-small")
     chunks = load_and_split_dir(base_dir, strategy=strategy, embedder=embedder, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
